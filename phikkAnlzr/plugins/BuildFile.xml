@@ -1,0 +1,16 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/RecoMuonObjects"/>
+<use   name="TrackingTools/Records"/>
+<use   name="rootcore"/>
+<use   name="rootgraphics"/>
+<use   name="Root"/>
+<use   name="CommonTools/UtilAlgos"/>
+<flags EDM_PLUGIN="1"/>
