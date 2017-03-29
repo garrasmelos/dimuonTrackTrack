@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-        '/store/group/phys_bphys/asanchez/MuOnia/bphskim/170215_050232/0000/BPHSkim_1.root'
+        ' /store/group/phys_bphys/asanchez/MuOnia/bphskim/170215_045152/0000/BPHSkim_1.root'
     )
 )
 

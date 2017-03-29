@@ -85,6 +85,7 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
       // ----------member data ---------------------------
       TTree* oniaTree;
+      TTree* tracksTree;
       UInt_t nPVs=0;
       UInt_t tksInPV=0;
       UInt_t isMatched=0;
@@ -92,6 +93,8 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       TLorentzVector dimuon_p4;
       TLorentzVector muonP_p4;
       TLorentzVector muonN_p4;
+
+      Float_t tkPt=0;
       
       edm::EDGetTokenT<pat::CompositeCandidateCollection> oniaToken_;
       edm::EDGetTokenT<reco::TrackCollection> trackToken_;
@@ -230,14 +233,20 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   		int dz1=100.;
 	   		int i = 0;
 	   		bool isInPV=true;
+	   		tkPt = itk->track().pt();
+	   		//cout << "Charge: " << itk->track().charge() << endl;
+	   		//cout << "pt: " << track_pt << endl;
 	   		//Figuring out if the track belongs to "the Primary Vertex" defined and keeping the number of the track if it does. 
 	   		
 	   		for(VertexCollection::const_iterator ipv1 = pvs->begin(); ipv1 != pvs->end(); ipv1++)
 	   		{
 	   			GlobalPoint vert(ipv1->x(), ipv1->y(), ipv1->z());
-	   			TrajectoryStateClosestToPoint  traj = itk->trajectoryStateClosestToPoint(vert );
+	   			//cout << ipv1->x() << " " << ipv1->y() << " "<< ipv1->z() << endl;
+ 
+               TrajectoryStateClosestToPoint  traj = itk->trajectoryStateClosestToPoint(vert );
  	  				double dz = traj.perigeeParameters().longitudinalImpactParameter();
- 	  				if(ipv1 == pvs->begin()) dz1 = TMath::Abs(dz);
+ 	  				
+               if(ipv1 == pvs->begin()) dz1 = TMath::Abs(dz);
    				else 
    				{
    					if(dz1 > TMath::Abs(dz))
@@ -248,7 +257,13 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    				}
    			}
 
-   			if(isInPV)tracksInPV.push_back(i);
+   			if(isInPV)
+            {  
+               //cout << itk->track().innerMomentum() << endl;
+               //tkPt = itk.innerMomentum().x();
+               tracksInPV.push_back(i);
+               tracksTree->Fill();
+            }
    			i++;
    		}
    	}
@@ -340,7 +355,9 @@ phikkAnlzr::beginJob()
 	oniaTree->Branch("dimuon_p4",			"TLorentzVector",			&dimuon_p4);
 	oniaTree->Branch("muonP_p4",			"TLorentzVector",			&muonP_p4);
 	oniaTree->Branch("muonN_p4",			"TLorentzVector",			&muonN_p4);
-	return;
+	tracksTree = fs->make<TTree>("tracksTree","Tree of tracks");
+   tracksTree->Branch("tkPt",          &tkPt,                  "tkPt/f");
+   return;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
