@@ -18,7 +18,7 @@ FileList = "List.txt"           # list with all the file directories
 #DirInEOS = "root://eosuser.cern.ch//eos/user/g/garamire/Temporal/store/"  #this dir has to exist in eos otherwise set to "0", next linei
 DirInEOS = "root://eoscms//eos/cms/store/group/phys_bphys/garamire/MuOnia/dimuonTrackTrack/2015/"
 #DirInEOS = "root://eoscms//eos/cms/store/group/dpg_rpc/comm_rpc/Sandbox/garamire/HSCP_MC_GEN-SIM-Feb2017-M247/HSCP_MC_GEN-SIM-Feb2017-M247/170215_203904/0000/"
-UseEOS = 1                      # use or not eos, if not used, output will be transfer to current cwd area
+UseEOS = 0                      # use or not eos, if not used, output will be transfer to current cwd area
 queue = "8nh"                   # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 ########   customization end   #########
 

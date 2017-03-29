@@ -93,7 +93,9 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       TLorentzVector dimuon_p4;
       TLorentzVector muonP_p4;
       TLorentzVector muonN_p4;
-
+		
+		UInt_t run=0;
+		UInt_t nevent=0;
       Float_t tkPt=0;
       
       edm::EDGetTokenT<pat::CompositeCandidateCollection> oniaToken_;
@@ -219,6 +221,9 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //cout << "Number of Primary Vertices: " << pvs->size() << endl;
 	
 	//cout << t_tks[0].track().charge() << endl;
+	//cout << "nEvent: " << iEvent.id().event() << endl;
+	run = iEvent.id().run();
+	nevent = iEvent.id().event();
 	trig       = getTriggerBits(iEvent,FilterNames_);
    if(trig)
    {
@@ -357,6 +362,8 @@ phikkAnlzr::beginJob()
 	oniaTree->Branch("muonN_p4",			"TLorentzVector",			&muonN_p4);
 	tracksTree = fs->make<TTree>("tracksTree","Tree of tracks");
    tracksTree->Branch("tkPt",          &tkPt,                  "tkPt/f");
+   tracksTree->Branch("run",          	&run,                  	"run/i");
+   tracksTree->Branch("nevent",        &nevent,                "nevent/i");
    return;
 }
 
