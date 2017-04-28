@@ -10,5 +10,8 @@ dimuonkk = cms.EDAnalyzer('phikkAnlzr',
                            'HLT_Dimuon0_Phi_Barrel',
                            'HLT_Mu16_TkMu0_dEta18_Phi'
                      	),
-                     	diMuMassRange = cms.vdouble(0.85,1.2)
+                     	diMuMassRange = cms.vdouble(0.85,1.2),
+                     	TrackQuality = cms.string("highPurity")
+                     	
+                     	
 )
