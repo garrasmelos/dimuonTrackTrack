@@ -260,16 +260,20 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    muonP_p4.SetPtEtaPhiM(0.,0.,0.,0.);
    muonN_p4.SetPtEtaPhiM(0.,0.,0.,0.);
    
+   nPVs = pvs->size();
+   
    //cout << "First track charge: " << tracks->at(0).charge() << endl;
 	run = iEvent.id().run();
 	nevent = iEvent.id().event();
 	trig       = getTriggerBits(iEvent,FilterNames_);
+	//cout << "trig: "<< trig << endl;
    if(trig)
    {
    	Vertex thePV;
    	UInt_t diMutight = 0;
    	double diMuMinMass = diMuMassRange_[0];
    	double diMuMaxMass = diMuMassRange_[1];
+   	//cout << "Number of onias: " << onias->size() << endl;
    	if(onias->size()>0)
    	{	
    		for(pat::CompositeCandidateCollection::const_iterator idimuon = onias->begin(); idimuon != onias->end(); idimuon++)
@@ -303,20 +307,21 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      	if(ipv!=pvs->begin())
                      	{
                         	if(TMath::Abs(dimuvertex->z()-thePV.z()) > TMath::Abs(dimuvertex->z() - ipv->z())) thePV = Vertex(*ipv);//thePV = ipv;
-                     		else
-                     		{
-                           	thePV = Vertex(*ipv);
-                    	 		}                   
-                  		}
-							}
-						
+                     	}	
+                     	else
+                     	{
+                          	thePV = Vertex(*ipv);
+                    	 	}                   
+                  	}
+							diMutight = 0; 
+							if (mu1->isTightMuon(thePV) && mu2->isTightMuon(thePV)) diMutight=1;
+
+   						if(!diMutight) break;
+   						oniaTree->Fill();
+   						break;
 						}
 					}
-					diMutight = 0; 
-					if (mu1->isTightMuon(thePV) && mu2->isTightMuon(thePV)) diMutight=1;
-   				if(!diMutight) continue;
-   				oniaTree->Fill();
-   				break;
+
    			}
    		}
    		
@@ -344,11 +349,14 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    			{
    				for(unsigned int j = 0 ; j < tracksNInPV.size(); j++)
    				{
-   					kaonP_p4.SetPtEtaPhiM(tracksPInPV[i].pt(),tracksPInPV[i].eta(),tracksPInPV[i].phi(),0.493677);
-   					kaonN_p4.SetPtEtaPhiM(tracksNInPV[j].pt(),tracksNInPV[j].eta(),tracksNInPV[j].phi(),0.493677);
-   					dikaon_p4 = kaonP_p4 + kaonN_p4;	
-   					//phikk_q = tracksPInPV[i].charge() + tracksNInPV[j].charge();
-   					if(dikaon_p4.M()>0.85 && dikaon_p4.M() <1.15) dikaonTree->Fill();
+   					if(tracksNInPV[j].quality(trackQuality_))
+   					{
+   						kaonP_p4.SetPtEtaPhiM(tracksPInPV[i].pt(),tracksPInPV[i].eta(),tracksPInPV[i].phi(),0.493677);
+   						kaonN_p4.SetPtEtaPhiM(tracksNInPV[j].pt(),tracksNInPV[j].eta(),tracksNInPV[j].phi(),0.493677);
+   						dikaon_p4 = kaonP_p4 + kaonN_p4;	
+   						//phikk_q = tracksPInPV[i].charge() + tracksNInPV[j].charge();
+   						if(dikaon_p4.M()>0.85 && dikaon_p4.M() <1.15) dikaonTree->Fill();
+   					}
    				}
    			}
    		}
