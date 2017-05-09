@@ -100,8 +100,8 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       TLorentzVector kaonP_p4;
       TLorentzVector kaonN_p4;   
       
-		UInt_t run=0;
-		UInt_t nevent=0;
+      UInt_t run=0;
+      UInt_t nevent=0;
       Double_t vProb_diMu=0.;
       
       const reco::TrackBase::TrackQuality trackQuality_;
@@ -263,7 +263,7 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 	nPVs = pvs->size();
    
-   //cout << "First track charge: " << tracks->at(0).charge() << endl;
+	//cout << "First track charge: " << tracks->at(0).charge() << endl;
 	run = iEvent.id().run();
 	nevent = iEvent.id().event();
 	trig       = getTriggerBits(iEvent,FilterNames_);
