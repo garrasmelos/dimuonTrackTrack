@@ -175,67 +175,68 @@ bool phikkAnlzr::isInPV(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 	{
 		double dz_min=10000.;
 		GlobalPoint vert(ipv->x(), ipv->y(), ipv->z());
-      TrajectoryStateClosestToPoint  traj = t_trk.trajectoryStateClosestToPoint(vert);
- 		double dz = traj.perigeeParameters().longitudinalImpactParameter();
+		TrajectoryStateClosestToPoint  traj = t_trk.trajectoryStateClosestToPoint(vert);
+		double dz = traj.perigeeParameters().longitudinalImpactParameter();
  				
-      if(ipv == pvts->begin()) 
-      {
-      	dz_min = TMath::Abs(dz);
- 			vtx_min = Vertex(*ipv);
- 		}
- 		else 
- 		{
- 			if(dz_min > TMath::Abs(dz))
- 			{
- 				vtx_min = Vertex(*ipv); 
- 			}
- 		}
- 	}
- 	if (vtx_min.x() == thepv.x() && vtx_min.y() == thepv.y() && vtx_min.z() == thepv.z()) accepted=true;
- 	return accepted;
+		if(ipv == pvts->begin()) 
+		{
+			dz_min = TMath::Abs(dz);
+			vtx_min = Vertex(*ipv);
+		}
+		else 
+		{
+			if(dz_min > TMath::Abs(dz))
+			{
+				vtx_min = Vertex(*ipv); 
+			}
+		}
+	}
+	if (vtx_min.x() == thepv.x() && vtx_min.y() == thepv.y() && vtx_min.z() == thepv.z()) accepted=true;
+	return accepted;
 }
 
 
 UInt_t phikkAnlzr::getTriggerBits(const edm::Event& iEvent, std::vector<std::string> TestFilterNames_)
 {
-   UInt_t trigger=0;
-   edm::Handle<edm::TriggerResults> triggerResults_handle;
-   iEvent.getByToken(triggerResults_,triggerResults_handle);
-   if(triggerResults_handle.isValid())
-   {
-      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults_handle);
-      for(unsigned i=0 ; i< TestFilterNames_.size();i++)
-      {
-         for(int ver=1 ; ver < 9 ; ver++)
-         {
-            std::stringstream ss;
-            ss << TestFilterNames_[i] << "_v" << ver;
-            unsigned int bit = triggerNames.triggerIndex(edm::InputTag(ss.str()).label().c_str());
-            if(bit < triggerResults_handle->size() && triggerResults_handle->accept(bit) && !triggerResults_handle->error(bit))
-            {
-               //trigger += 1 << bit;
-               trigger += 1 << (i*9 + ver);
-               break;
-            }
-         }
-      }
-   } else std::cout << "miniAnalyzer::getTriggerBits: **** No triggers found ****" << std::endl;
-   return trigger;
+	UInt_t trigger=0;
+	edm::Handle<edm::TriggerResults> triggerResults_handle;
+	iEvent.getByToken(triggerResults_,triggerResults_handle);
+	if(triggerResults_handle.isValid())
+	{
+		const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults_handle);
+		for(unsigned i=0 ; i< TestFilterNames_.size();i++)
+		{
+			for(int ver=1 ; ver < 9 ; ver++)
+			{
+				std::stringstream ss;
+				ss << TestFilterNames_[i] << "_v" << ver;
+				unsigned int bit = triggerNames.triggerIndex(edm::InputTag(ss.str()).label().c_str());
+				if(bit < triggerResults_handle->size() && triggerResults_handle->accept(bit) && !triggerResults_handle->error(bit))
+				{
+					//trigger += 1 << bit;
+					trigger += 1 << (i*9 + ver);
+					break;
+				}
+			}
+		}
+	} else std::cout << "miniAnalyzer::getTriggerBits: **** No triggers found ****" << std::endl;
+	return trigger;
 }
 
 
-UInt_t phikkAnlzr::isTriggerMatched(const pat::CompositeCandidate *diMuon_cand) {
-  	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(diMuon_cand->daughter("muon1"));
-  	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(diMuon_cand->daughter("muon2"));
- 	UInt_t matched = 0;  // if no list is given, is not matched 
-
+UInt_t phikkAnlzr::isTriggerMatched(const pat::CompositeCandidate *diMuon_cand) 
+{
+	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(diMuon_cand->daughter("muon1"));
+	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(diMuon_cand->daughter("muon2"));
+	UInt_t matched = 0;  // if no list is given, is not matched 
 	// if matched a given trigger, set the bit, in the same order as listed
-  	for (unsigned int iTr = 0; iTr<HLTLastFilters.size(); iTr++ ) {
-     	const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByFilter(HLTLastFilters[iTr]);
-     	const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByFilter(HLTLastFilters[iTr]);
-     	if (mu1HLTMatches.size() > 0 && mu2HLTMatches.size() > 0) matched += (1<<iTr); 
-  	}
-  	return matched;
+	for (unsigned int iTr = 0; iTr<HLTLastFilters.size(); iTr++ ) 
+	{
+		const pat::TriggerObjectStandAloneCollection mu1HLTMatches = muon1->triggerObjectMatchesByFilter(HLTLastFilters[iTr]);
+		const pat::TriggerObjectStandAloneCollection mu2HLTMatches = muon2->triggerObjectMatchesByFilter(HLTLastFilters[iTr]);
+		if (mu1HLTMatches.size() > 0 && mu2HLTMatches.size() > 0) matched += (1<<iTr); 
+	}
+	return matched;
 }
 
 
@@ -243,7 +244,7 @@ UInt_t phikkAnlzr::isTriggerMatched(const pat::CompositeCandidate *diMuon_cand) 
 void
 phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+	using namespace edm;
 	using namespace std;
 	using namespace reco;
 	
@@ -256,111 +257,113 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Handle<reco::VertexCollection> pvs;
 	iEvent.getByToken(pvsToken_, pvs);
 	
-   dimuon_p4.SetPtEtaPhiM(0.,0.,0.,0.);
-   muonP_p4.SetPtEtaPhiM(0.,0.,0.,0.);
-   muonN_p4.SetPtEtaPhiM(0.,0.,0.,0.);
+	dimuon_p4.SetPtEtaPhiM(0.,0.,0.,0.);
+	muonP_p4.SetPtEtaPhiM(0.,0.,0.,0.);
+	muonN_p4.SetPtEtaPhiM(0.,0.,0.,0.);
    
-   nPVs = pvs->size();
+	nPVs = pvs->size();
    
    //cout << "First track charge: " << tracks->at(0).charge() << endl;
 	run = iEvent.id().run();
 	nevent = iEvent.id().event();
 	trig       = getTriggerBits(iEvent,FilterNames_);
 	//cout << "trig: "<< trig << endl;
-   if(trig)
-   {
-   	Vertex thePV;
-   	UInt_t diMutight = 0;
-   	double diMuMinMass = diMuMassRange_[0];
-   	double diMuMaxMass = diMuMassRange_[1];
-   	//cout << "Number of onias: " << onias->size() << endl;
-   	if(onias->size()>0)
-   	{	
-   		for(pat::CompositeCandidateCollection::const_iterator idimuon = onias->begin(); idimuon != onias->end(); idimuon++)
-   		{
-   		  	const pat::Muon* mu1 = dynamic_cast<const pat::Muon*>(idimuon->daughter("muon1"));
-  	        	const pat::Muon* mu2 = dynamic_cast<const pat::Muon*>(idimuon->daughter("muon2"));
+	if(trig)
+	{
+		Vertex thePV;
+		UInt_t diMutight = 0;
+		double diMuMinMass = diMuMassRange_[0];
+		double diMuMaxMass = diMuMassRange_[1];
+		//cout << "Number of onias: " << onias->size() << endl;
+		if(onias->size()>0)
+		{	
+			for(pat::CompositeCandidateCollection::const_iterator idimuon = onias->begin(); idimuon != onias->end(); idimuon++)
+			{
+				const pat::Muon* mu1 = dynamic_cast<const pat::Muon*>(idimuon->daughter("muon1"));
+				const pat::Muon* mu2 = dynamic_cast<const pat::Muon*>(idimuon->daughter("muon2"));
  	    		
    			
-   			vProb_diMu = idimuon->userFloat("vProb");
-   			if(idimuon->mass()>diMuMinMass && idimuon->mass()<diMuMaxMass)
-   			{
-   				isMatched = isTriggerMatched(&*idimuon);
-   				dimuon_p4.SetPtEtaPhiM(idimuon->pt(),idimuon->eta(),idimuon->phi(),idimuon->mass());
-   				reco::Candidate::LorentzVector vP = idimuon->daughter("muon1")->p4();
-   				reco::Candidate::LorentzVector vM = idimuon->daughter("muon2")->p4();
-   				if ( idimuon->daughter("muon1")->charge() < 0 ) {
-              		vP = idimuon->daughter("muon2")->p4();
-              		vM = idimuon->daughter("muon1")->p4();
-          		}
-          		muonP_p4.SetPtEtaPhiM(vP.pt(),vP.eta(),vP.phi(),vP.mass());
-            	muonN_p4.SetPtEtaPhiM(vM.pt(),vM.eta(),vM.phi(),vM.mass());
-   				if(pvs->size()>0)
+				vProb_diMu = idimuon->userFloat("vProb");
+				if(idimuon->mass()>diMuMinMass && idimuon->mass()<diMuMaxMass)
+				{
+					isMatched = isTriggerMatched(&*idimuon);
+					dimuon_p4.SetPtEtaPhiM(idimuon->pt(),idimuon->eta(),idimuon->phi(),idimuon->mass());
+					reco::Candidate::LorentzVector vP = idimuon->daughter("muon1")->p4();
+					reco::Candidate::LorentzVector vM = idimuon->daughter("muon2")->p4();
+					if ( idimuon->daughter("muon1")->charge() < 0 )
+					{
+						vP = idimuon->daughter("muon2")->p4();
+						vM = idimuon->daughter("muon1")->p4();
+					}
+					muonP_p4.SetPtEtaPhiM(vP.pt(),vP.eta(),vP.phi(),vP.mass());
+					muonN_p4.SetPtEtaPhiM(vM.pt(),vM.eta(),vM.phi(),vM.mass());
+					if(pvs->size()>0)
 					{
 						if(idimuon->userData<reco::Vertex>("commonVertex"))
 						{
 							const reco::Vertex* dimuvertex = idimuon->userData<reco::Vertex>("commonVertex");
 							//Taking the first vertex of the list as the PV.
 							//Choosing the closest PV to the dimuon vertex (in z).
-                  	for(reco::VertexCollection::const_iterator ipv = pvs->begin(); ipv != pvs->end(); ipv++)
-                  	{                              
-                     	if(ipv!=pvs->begin())
-                     	{
-                        	if(TMath::Abs(dimuvertex->z()-thePV.z()) > TMath::Abs(dimuvertex->z() - ipv->z())) thePV = Vertex(*ipv);//thePV = ipv;
-                     	}	
-                     	else
-                     	{
-                          	thePV = Vertex(*ipv);
-                    	 	}                   
-                  	}
+							for(reco::VertexCollection::const_iterator ipv = pvs->begin(); ipv != pvs->end(); ipv++)
+							{                              
+								if(ipv!=pvs->begin())
+								{
+									if(TMath::Abs(dimuvertex->z()-thePV.z()) > TMath::Abs(dimuvertex->z() - ipv->z())) thePV = Vertex(*ipv);//thePV = ipv;
+								}	
+								else
+								{
+									thePV = Vertex(*ipv);
+								}                   
+							}
 							diMutight = 0; 
 							if (mu1->isTightMuon(thePV) && mu2->isTightMuon(thePV)) diMutight=1;
-
-   						if(!diMutight) break;
-   						oniaTree->Fill();
-   						break;
+							if(!diMutight) break;
+							oniaTree->Fill();
+							break;
 						}
 					}
-
-   			}
-   		}
-   		
-   	}else
-   	{
-   		cout << "There was not dimuon in this event." <<endl;
-   	}
-   	vector<reco::Track> tracksPInPV, tracksNInPV;
-	   if(tracks->size()>0 && diMutight){
-	   		   	
-	   	for(auto& itk : *tracks)
-	   	{
-	   		bool inPV = isInPV(iEvent,iSetup,itk, thePV);
-   			if(inPV)
-            {  
-            	if(itk.charge() > 0.) tracksPInPV.push_back(itk);
-               else tracksNInPV.push_back(itk);
-            }
-   		}
-   		
-   		
-   		for(unsigned int i =0; i < tracksPInPV.size(); i++)
-   		{
-   			if(tracksPInPV[i].quality(trackQuality_))
-   			{
-   				for(unsigned int j = 0 ; j < tracksNInPV.size(); j++)
-   				{
-   					if(tracksNInPV[j].quality(trackQuality_))
-   					{
-   						kaonP_p4.SetPtEtaPhiM(tracksPInPV[i].pt(),tracksPInPV[i].eta(),tracksPInPV[i].phi(),0.493677);
-   						kaonN_p4.SetPtEtaPhiM(tracksNInPV[j].pt(),tracksNInPV[j].eta(),tracksNInPV[j].phi(),0.493677);
-   						dikaon_p4 = kaonP_p4 + kaonN_p4;	
-   						//phikk_q = tracksPInPV[i].charge() + tracksNInPV[j].charge();
-   						if(dikaon_p4.M()>0.85 && dikaon_p4.M() <1.15) dikaonTree->Fill();
-   					}
-   				}
-   			}
-   		}
-   	}
+				}
+			}   		
+		}else
+		{
+			cout << "There was not dimuon in this event." <<endl;
+		}
+		vector<reco::Track> tracksPInPV, tracksNInPV;
+		cout << "tracks size " << tracks->size() << " " << diMutight << endl;
+		if(tracks->size()>0 && diMutight)
+		{	   		   	
+			for(auto& itk : *tracks)
+			{
+				bool inPV = isInPV(iEvent,iSetup,itk, thePV);
+				if(inPV)
+				{  
+					if(itk.charge() > 0.) tracksPInPV.push_back(itk);
+					else tracksNInPV.push_back(itk);
+				}
+			}
+			cout << "%% Here 1 %%" << endl;   		
+			for(unsigned int i =0; i < tracksPInPV.size(); i++)
+			{   			
+				if(tracksPInPV[i].quality(trackQuality_))
+				{
+					for(unsigned int j = 0 ; j < tracksNInPV.size(); j++)
+					{
+						if(tracksNInPV[j].quality(trackQuality_))
+						{
+							kaonP_p4.SetPtEtaPhiM(tracksPInPV[i].pt(),tracksPInPV[i].eta(),tracksPInPV[i].phi(),0.493677);
+							kaonN_p4.SetPtEtaPhiM(tracksNInPV[j].pt(),tracksNInPV[j].eta(),tracksNInPV[j].phi(),0.493677);
+							dikaon_p4 = kaonP_p4 + kaonN_p4;	
+							//phikk_q = tracksPInPV[i].charge() + tracksNInPV[j].charge();
+							if(dikaon_p4.M()>0.5 && dikaon_p4.M() <1.15) 
+							{
+								dikaonTree->Fill();
+								cout << "%% Here 2 %%" << endl;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
 	// ------------ method called once each job just before starting event loop  ------------
@@ -378,14 +381,14 @@ phikkAnlzr::beginJob()
 	oniaTree->Branch("dimuon_p4",			"TLorentzVector",			&dimuon_p4);
 	oniaTree->Branch("muonP_p4",			"TLorentzVector",			&muonP_p4);
 	oniaTree->Branch("muonN_p4",			"TLorentzVector",			&muonN_p4);
-	
+
 	dikaonTree = fs->make<TTree>("dikaonTree","Tree of phi to kk");
 	dikaonTree->Branch("dikaon_p4",		"TLorentzVector",			&dikaon_p4);
 	dikaonTree->Branch("kaonP_p4",		"TLorentzVector",			&kaonP_p4);
 	dikaonTree->Branch("kaonN_p4",		"TLorentzVector",			&kaonN_p4);
-   dikaonTree->Branch("run",          	&run,                  	"run/i");
-   dikaonTree->Branch("nevent",        &nevent,                "nevent/i");
-   return;
+	dikaonTree->Branch("run",				&run,							"run/i");
+	dikaonTree->Branch("nevent",			&nevent,						"nevent/i");
+	return;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
