@@ -1,22 +1,3 @@
-// -*- C++ -*-
-// here
-// Package:    dimuonTrackTrack/phikkAnlzr
-// Class:      phikkAnlzr
-// 
-/**\class phikkAnlzr phikkAnlzr.cc dimuonTrackTrack/phikkAnlzr/plugins/phikkAnlzr.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Gabriel Ramirez Sanchez
-//         Created:  Tue, 21 Feb 2017 20:10:05 GMT
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -35,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include <DataFormats/PatCandidates/interface/GenericParticle.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -71,11 +53,8 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       explicit phikkAnlzr(const edm::ParameterSet&);
       ~phikkAnlzr();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-
    private:
-   	bool isInPV(const edm::Event& , const edm::EventSetup&, reco::Track ,reco::Vertex );
+   	bool isInPV(const edm::Event& , const edm::EventSetup&, pat::GenericParticle ,reco::Vertex );
    	UInt_t getTriggerBits(const edm::Event &, std::vector<std::string>);
    	UInt_t isTriggerMatched(const pat::CompositeCandidate *);
    	
@@ -104,9 +83,9 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       UInt_t nevent=0;
       Double_t vProb_diMu=0.;
       
-      const reco::TrackBase::TrackQuality trackQuality_;
+      const  trackQuality_;
       edm::EDGetTokenT<pat::CompositeCandidateCollection> oniaToken_;
-      edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+      edm::EDGetTokenT<std::vector<pat::GenericParticle>> trackToken_;
       edm::EDGetTokenT<pat::MuonCollection> muonToken_;
       edm::EDGetTokenT<reco::VertexCollection> pvsToken_;
       edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
@@ -130,7 +109,7 @@ class phikkAnlzr : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 phikkAnlzr::phikkAnlzr(const edm::ParameterSet& iConfig)
 : 	trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 	oniaToken_(consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("oniaLabel"))),
-	trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackLabel"))),
+	trackToken_(consumes<std::vector<pat::GenericParticle>>(iConfig.getParameter<edm::InputTag>("trackLabel"))),
 	muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter< edm::InputTag>("muonLabel"))),
 	pvsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvsLabel"))),
 	triggerResults_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
@@ -251,7 +230,7 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Handle<pat::CompositeCandidateCollection> onias;
 	iEvent.getByToken(oniaToken_, onias);
 	
-	Handle<reco::TrackCollection> tracks;
+	Handle<std::vector<pat::GenericParticle>> tracks;
 	iEvent.getByToken(trackToken_,tracks);
 	
 	Handle<reco::VertexCollection> pvs;
@@ -328,7 +307,7 @@ phikkAnlzr::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		{
 			cout << "There was not dimuon in this event." <<endl;
 		}
-		vector<reco::Track> tracksPInPV, tracksNInPV;
+		vector<pat::GenericParticle> tracksPInPV, tracksNInPV;
 		cout << "tracks size " << tracks->size() << " " << diMutight << endl;
 		if(tracks->size()>0 && diMutight)
 		{	   		   	
@@ -397,15 +376,6 @@ phikkAnlzr::endJob()
 {
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-phikkAnlzr::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(phikkAnlzr);
